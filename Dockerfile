@@ -6,6 +6,13 @@ LABEL org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://github.com/ihcsim/docker-wso2apim"
 
 ARG APIM_VERSION=${APIM_VERSION:-2.0.0}
+
+
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+
+
+
 RUN wget -P /opt https://s3-us-west-2.amazonaws.com/wso2-stratos/wso2am-${APIM_VERSION}.zip && \
     apt-get update && \
     apt-get install -y zip && \
@@ -14,5 +21,12 @@ RUN wget -P /opt https://s3-us-west-2.amazonaws.com/wso2-stratos/wso2am-${APIM_V
     rm /opt/wso2am-${APIM_VERSION}.zip
 
 EXPOSE 9443 9763 8243 8280 10397 7711
+
+
+RUN chown -R appuser:appuser /opt/wso2am-${APIM_VERSION}
+
 WORKDIR /opt/wso2am-${APIM_VERSION}
+
+
+USER appuser
 ENTRYPOINT ["bin/wso2server.sh"]
